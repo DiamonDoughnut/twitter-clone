@@ -2,12 +2,13 @@
 import React, { useEffect, useState } from "react";
 import TweetInput from "./PostsFeed/Tweet/TweetInput";
 import Tweet, { TweetProps } from "./PostsFeed/Tweet";
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import { collection, DocumentData, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "../../firebase";
+import Link from "next/link";
 
 const PostsFeed = () => {
 
-  const [tweets, setTweets] = useState<unknown[]>()
+  const [tweets, setTweets] = useState<DocumentData[]>()
 
   useEffect(() => {
     const q = query(collection(db, 'posts'), orderBy('timeStamp', 'desc'));
@@ -27,7 +28,9 @@ const PostsFeed = () => {
         Home
       </div>
       <TweetInput />
-      {tweets?.map((tweet, index) => <Tweet key={tweet.id + index} data={tweet.data() as TweetProps}/>)}
+      {tweets?.map((tweet) => (
+          <Tweet key={tweet?.id} data={{...tweet.data(), id: tweet.id} as TweetProps}/>
+      ))}
       
     </div>
   );
