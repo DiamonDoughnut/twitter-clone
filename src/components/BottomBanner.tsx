@@ -1,5 +1,6 @@
 import React from "react";
 import SignUpModal from "./Modals/SignUpModal";
+import LogInModal from "./Modals/LogInModal";
 
 const BottomBanner = () => {
   return (
@@ -11,9 +12,7 @@ const BottomBanner = () => {
         </span>
       </div>
       <div className='space-x-3'>
-        <button className='bg-white text-black w-[160px] h-[40px] rounded-full hover:bg-[#CBD2D7]'>
-          Log In
-        </button>
+        <LogInModal />
         <SignUpModal />
       </div>
     </div>
