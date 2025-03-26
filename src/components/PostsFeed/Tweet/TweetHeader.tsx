@@ -1,10 +1,21 @@
 import React from "react";
 import Image from "next/image";
-const TweetHeader = () => {
+import { Timestamp } from "firebase/firestore";
+import Moment from 'react-moment'
+
+interface TweetHeaderProps {
+  userName: string,
+  name: string,
+  timeStamp: Timestamp,
+  photoUrl: string,
+  tweet: string
+}
+
+const TweetHeader = ({ data }: {data: TweetHeaderProps}) => {
   return (
     <div className="flex space-x-3 p-3">
       <Image
-        src={"/assets/kylie.png"}
+        src={data.photoUrl || "/assets/kylie.png"}
         height={800}
         width={700}
         alt='profile'
@@ -12,11 +23,14 @@ const TweetHeader = () => {
       />
       <div>
         <div className="flex items-center space-x-2 text-gray-500 mb-1">
-          <span>@kylie</span>
+          <h1 className="text-white font-bold">{data.name}</h1>
+          <span>@{data.userName}</span>
           <div className="w-1 h-1 bg-gray-500 rounded-full" />
-          <span>2 hours ago</span>
+          <Moment fromNow>
+          {data.timeStamp?.toDate()}
+          </Moment>
         </div>
-        <span>Text</span>
+        <span>{data.tweet}</span>
       </div>
     </div>
   );

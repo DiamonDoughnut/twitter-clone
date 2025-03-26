@@ -4,6 +4,7 @@ import PostsFeed from "@/components/PostsFeed";
 import Sidebar from "@/components/Sidebar";
 import Trending from "@/components/Trending";
 import { useAppSelector } from "./hooks/reduxTSAdapter";
+import CommentModal from "@/components/Modals/CommentModal";
 
 export default function Home() {
 
@@ -19,9 +20,8 @@ export default function Home() {
           <Trending />
         </div>
       </div>
-      <div className=''>
-        {!userName && <BottomBanner />}
-      </div>
+      <CommentModal />
+      {!userName && <BottomBanner />}      
     </div>
   );
 }
