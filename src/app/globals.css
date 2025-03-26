@@ -24,3 +24,11 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.hoverAnimation {
+  @apply space-x-3 hover:bg-white/20 xl:p-3 rounded-full hover:cursor-pointer w-11 h-11 xl:w-auto xl:h-auto
+}
+
+.iconsHover {
+  @apply hover:bg-[#1D9BF0]/10 rounded-full h-9 w-9 flex items-center justify-center cursor-pointer
+}
