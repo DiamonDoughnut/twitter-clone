@@ -80,7 +80,7 @@ const CommentsPage = async ({ params }: { params: Promise<{ id: string }>}) => {
                 </div>
                 <span className='text-2xl'>{data?.text}</span>
                 {data?.image && (
-                  <Image src={data.image} alt="" fill className='object-cover rounded-md mt-3 max-h-80 border border-gray-700' />
+                  <Image src={data.image} alt="" height={320} width={320} className='object-cover rounded-md mt-3 max-h-80 max-w-80 border border-gray-700' />
                 )}
               </div>
             </div>

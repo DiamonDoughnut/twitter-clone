@@ -32,7 +32,7 @@ const TweetHeader = ({ data }: {data: TweetHeaderProps}) => {
           </Moment>
         </div>
         <span>{data.tweet}</span>
-        {data.image && <Image src={data.image} fill alt="" className="object-cover rounded-md mt-3 max-h-80 border border-gray-700" />}
+        {data.image && <Image src={data.image} width={320} height={320} alt="" className="object-cover rounded-md mt-3 max-h-80 max-w-80 border border-gray-700" />}
       </div>
     </div>
   );

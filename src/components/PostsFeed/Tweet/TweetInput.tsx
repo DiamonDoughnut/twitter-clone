@@ -11,8 +11,9 @@ import {
 } from "@heroicons/react/24/outline";
 import { db, storage } from "../../../../firebase";
 import { addDoc, collection, doc, serverTimestamp, updateDoc } from "firebase/firestore";
-import { useAppSelector } from "@/app/hooks/reduxTSAdapter";
+import { useAppDispatch, useAppSelector } from "@/app/hooks/reduxTSAdapter";
 import { getDownloadURL, ref, uploadString } from "firebase/storage";
+import { openLogInModal } from "@/lib/modalSlice";
 
 export type TweetType = {
   userName: string,
@@ -28,10 +29,18 @@ const TweetInput = () => {
   const user = useAppSelector((state) => state.user);
   const [text, setText] = useState("");
   const [image, setImage] = useState<string | null | undefined>(null);
+  const [loading, setLoading] = useState(false)
 
   const filePickerRef = useRef(null)
 
+  const dispatch = useAppDispatch()
+
   async function sendTweet() {
+    if (!user.userName) {
+      dispatch(openLogInModal());
+      return;
+    }
+    setLoading(true)
     const docRef = await addDoc(collection(db, "posts"), {
       userName: user.userName,
       name: user.name,
@@ -54,6 +63,7 @@ const TweetInput = () => {
 
     setText("");
     setImage(null);
+    setLoading(false);
   }
 
   function addImageToTweet(e: ChangeEvent<HTMLInputElement>) {
@@ -76,7 +86,8 @@ const TweetInput = () => {
         width={700}
         className='h-11 w-11 rounded-full object-cover'
       />
-      <div className='w-full'>
+      {loading && (<h1 className="text-2xl text-gray-500">Uploading Post...</h1>)}
+      {!loading && (<div className='w-full'>
         <textarea
           onChange={(e) => setText(e.target.value)}
           value={text}
@@ -92,7 +103,7 @@ const TweetInput = () => {
               <div className="absolute top-1 left-1 bg-[#272C26] rounded-full w-8 h-8 flex justify-center items-center cursor-pointer hover:bg-white/10" onClick={() => setImage(null)}>
                 <XMarkIcon className="h-5" />
               </div>
-              <Image src={'/assets/kylie.png'} alt="" height={250} width={250} className="rounded-2xl max-h-80 object-contain" />
+              <Image src={image} alt="" height={250} width={250} className="rounded-2xl max-h-80 object-contain" />
             </div>
           )
         }
@@ -125,7 +136,7 @@ const TweetInput = () => {
             Tweet
           </button>
         </div>
-      </div>
+      </div>)}
     </div>
   );
 };
