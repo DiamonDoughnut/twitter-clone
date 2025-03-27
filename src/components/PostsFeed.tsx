@@ -4,7 +4,6 @@ import TweetInput from "./PostsFeed/Tweet/TweetInput";
 import Tweet, { TweetProps } from "./PostsFeed/Tweet";
 import { collection, DocumentData, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "../../firebase";
-import Link from "next/link";
 
 const PostsFeed = () => {
 
