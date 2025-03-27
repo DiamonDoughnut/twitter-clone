@@ -8,7 +8,8 @@ interface TweetHeaderProps {
   name: string,
   timeStamp: Timestamp,
   photoUrl: string,
-  tweet: string
+  tweet: string,
+  image: string | undefined
 }
 
 const TweetHeader = ({ data }: {data: TweetHeaderProps}) => {
@@ -31,6 +32,7 @@ const TweetHeader = ({ data }: {data: TweetHeaderProps}) => {
           </Moment>
         </div>
         <span>{data.tweet}</span>
+        {data.image && <Image src={data.image} fill alt="" className="object-cover rounded-md mt-3 max-h-80 border border-gray-700" />}
       </div>
     </div>
   );

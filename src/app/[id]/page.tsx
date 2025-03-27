@@ -7,7 +7,6 @@ import Link from "next/link";
 import CommentInput from "@/components/Comments/CommentInput";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../firebase";
-import Moment from "react-moment";
 import MomentComponent from "@/components/Comments/Moment";
 
 interface CommentsProps {
@@ -22,6 +21,7 @@ interface CommentsProps {
       userName: string;
     }[];
     timeStamp: Date;
+    image: string | undefined | null;
 }
 
 
@@ -42,7 +42,8 @@ const CommentsPage = async ({ params }: { params: Promise<{ id: string }>}) => {
             photoUrl: data?.photoUrl,
             text: data?.tweet,
             comments: data?.comments || null,
-            timeStamp: data?.timeStamp.toDate()
+            timeStamp: data?.timeStamp.toDate(),
+            image: data?.image || null
         }
     
         return formattedData
@@ -78,6 +79,9 @@ const CommentsPage = async ({ params }: { params: Promise<{ id: string }>}) => {
                   <MomentComponent timeStamp={data?.timeStamp}/>
                 </div>
                 <span className='text-2xl'>{data?.text}</span>
+                {data?.image && (
+                  <Image src={data.image} alt="" fill className='object-cover rounded-md mt-3 max-h-80 border border-gray-700' />
+                )}
               </div>
             </div>
           </div>

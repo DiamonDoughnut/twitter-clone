@@ -23,6 +23,7 @@ export interface TweetProps {
   tweet: string;
   uid: string;
   id: string;
+  image: string | undefined;
 }
 
 const Tweet = ({ data }: { data: TweetProps }) => {
@@ -62,7 +63,7 @@ const Tweet = ({ data }: { data: TweetProps }) => {
     if (!data.id) {
       return;
     }
-    const unsubscribe = onSnapshot(doc(db, 'posts', data.id), (doc) => {
+    const unsubscribe = onSnapshot(doc(db, 'posts', data?.id), (doc) => {
       setLikes(doc.data()?.likes)
       setComments(doc.data()?.comments)
     })
