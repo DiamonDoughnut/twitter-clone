@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import TweetHeader from "./Tweet/TweetHeader";
 import {
   ArrowUpTrayIcon,
@@ -7,10 +7,12 @@ import {
   ChatBubbleOvalLeftEllipsisIcon,
   HeartIcon,
 } from "@heroicons/react/24/outline";
-import { Timestamp } from "firebase/firestore";
-import { useAppDispatch } from "@/app/hooks/reduxTSAdapter";
+import { HeartIcon as FilledHeartIcon } from "@heroicons/react/24/solid";
+import { arrayRemove, arrayUnion, doc, onSnapshot, Timestamp, updateDoc } from "firebase/firestore";
+import { useAppDispatch, useAppSelector } from "@/app/hooks/reduxTSAdapter";
 import { openCommentModal, setCommentTweet } from "@/lib/modalSlice";
 import { useRouter } from "next/navigation";
+import { db } from "../../../firebase";
 
 export interface TweetProps {
   userName: string;
@@ -24,6 +26,37 @@ export interface TweetProps {
 const Tweet = ({ data }: { data: TweetProps }) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const user = useAppSelector(state => state.user)
+
+  async function likeComment(e: React.MouseEvent<HTMLDivElement, MouseEvent>){
+    e.stopPropagation()
+    if (likes.includes(user.uid as string)) {
+      await updateDoc(doc(db, 'posts', data.id), {
+        likes: arrayRemove(user.uid)
+      })
+    } else {
+      await updateDoc(doc(db, 'posts', data.id), {
+        likes: arrayUnion(user.uid)
+      })
+    }
+  }
+
+  const [likes, setLikes] = useState<string[]>([])
+  const [comments, setComments] = useState<unknown[]>([])
+
+  useEffect(() => {
+
+    if (!data.id) {
+      return;
+    }
+    const unsubscribe = onSnapshot(doc(db, 'posts', data.id), (doc) => {
+      setLikes(doc.data()?.likes)
+      setComments(doc.data()?.comments)
+    })
+
+    return unsubscribe;
+  }, [data.id])
+
   return (
     <div onClick={() => router.push("/" + data.id)} className='border-b border-gray-700 cursor-pointer'>
       <TweetHeader data={data} />
@@ -44,9 +77,25 @@ const Tweet = ({ data }: { data: TweetProps }) => {
             );
           }}
         >
-          <ChatBubbleOvalLeftEllipsisIcon className='w-5 cursor-pointer hover:text-green-400' />
+          <div className="flex justify-center items-center space-x-2">
+            <ChatBubbleOvalLeftEllipsisIcon className='w-5 cursor-pointer hover:text-green-400' />
+            {comments?.length > 0 && <span className="-mr-[16.5px] -translate-y-0.5 -mb-1">{comments.length}</span>}
+          </div>
         </div>
-        <HeartIcon className='w-5 cursor-pointer hover:text-pink-500' />
+        <div 
+          className="flex justify-center items-center space-x-2"
+          onClick={likeComment}
+        >
+          {
+            likes.includes(user.uid as string) ? 
+            (
+              <FilledHeartIcon className="w-5 cursor-pointer hover:text-pink-500" />
+            ) : (
+              <HeartIcon className='w-5 cursor-pointer hover:text-pink-500' />
+            )
+          }
+          {likes.length > 0 && <span className="-mr-[16.5px] -translate-y-0.5 -mb-1">{likes.length}</span>}
+        </div>
         <ChartBarIcon className='w-5 cursor-not-allowed' />
         <ArrowUpTrayIcon className='w-5 cursor-not-allowed' />
       </div>
