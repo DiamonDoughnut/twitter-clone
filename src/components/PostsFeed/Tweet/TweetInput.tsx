@@ -31,7 +31,7 @@ const TweetInput = () => {
   const [image, setImage] = useState<string | null | undefined>(null);
   const [loading, setLoading] = useState(false)
 
-  const filePickerRef = useRef(null)
+  const filePickerRef = useRef<HTMLInputElement>(null)
 
   const dispatch = useAppDispatch()
 
@@ -111,7 +111,7 @@ const TweetInput = () => {
 
         <div className='flex justify-between border-t border-gray-700 pt-4'>
           <div className='div flex space-x-0'>
-            <div onClick={() => filePickerRef!.current!.click()} className='iconsHover'>
+            <div onClick={() => filePickerRef!.current?.click()} className='iconsHover'>
               <PhotoIcon className='h-[22px] text-[#1D9BF0]' />
             </div>
             <input onChange={addImageToTweet} ref={filePickerRef} className='hidden' type='file' />
