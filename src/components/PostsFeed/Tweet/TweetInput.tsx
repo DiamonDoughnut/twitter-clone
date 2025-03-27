@@ -44,7 +44,7 @@ const TweetInput = () => {
   return (
     <div className='flex space-x-3 p-3 border-b border-gray-700'>
       <Image
-        src={user.photoUrl || "/assets/kylie.png"}
+        src={user.photoUrl || "/assets/twitter-logo.png"}
         alt='profile image'
         height={800}
         width={700}
