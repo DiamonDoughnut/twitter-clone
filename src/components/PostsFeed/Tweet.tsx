@@ -6,11 +6,12 @@ import {
   ChartBarIcon,
   ChatBubbleOvalLeftEllipsisIcon,
   HeartIcon,
+  TrashIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon as FilledHeartIcon } from "@heroicons/react/24/solid";
-import { arrayRemove, arrayUnion, doc, onSnapshot, Timestamp, updateDoc } from "firebase/firestore";
+import { arrayRemove, arrayUnion, deleteDoc, doc, onSnapshot, Timestamp, updateDoc } from "firebase/firestore";
 import { useAppDispatch, useAppSelector } from "@/app/hooks/reduxTSAdapter";
-import { openCommentModal, setCommentTweet } from "@/lib/modalSlice";
+import { openCommentModal, openLogInModal, setCommentTweet } from "@/lib/modalSlice";
 import { useRouter } from "next/navigation";
 import { db } from "../../../firebase";
 
@@ -20,6 +21,7 @@ export interface TweetProps {
   timeStamp: Timestamp;
   photoUrl: string;
   tweet: string;
+  uid: string;
   id: string;
 }
 
@@ -30,6 +32,12 @@ const Tweet = ({ data }: { data: TweetProps }) => {
 
   async function likeComment(e: React.MouseEvent<HTMLDivElement, MouseEvent>){
     e.stopPropagation()
+
+    if (!user.userName) {
+      dispatch(openLogInModal());
+      return
+    }
+
     if (likes.includes(user.uid as string)) {
       await updateDoc(doc(db, 'posts', data.id), {
         likes: arrayRemove(user.uid)
@@ -39,6 +47,11 @@ const Tweet = ({ data }: { data: TweetProps }) => {
         likes: arrayUnion(user.uid)
       })
     }
+  }
+
+  async function deleteTweet(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+    e.stopPropagation();
+    await deleteDoc(doc(db, 'posts', data.id));
   }
 
   const [likes, setLikes] = useState<string[]>([])
@@ -58,13 +71,17 @@ const Tweet = ({ data }: { data: TweetProps }) => {
   }, [data.id])
 
   return (
-    <div onClick={() => router.push("/" + data.id)} className='border-b border-gray-700 cursor-pointer'>
+    <div onClick={() => router.push("/" + data?.id)} className='border-b border-gray-700 cursor-pointer'>
       <TweetHeader data={data} />
       <div className='p-3 ml-16 text-gray-500 flex space-x-14'>
         <div
           role='button'
           onClick={(e) => {
             e.stopPropagation();
+            if (!user.userName) {
+              dispatch(openLogInModal()) 
+              return;
+            }
             dispatch(openCommentModal());
             dispatch(
               setCommentTweet({
@@ -87,15 +104,23 @@ const Tweet = ({ data }: { data: TweetProps }) => {
           onClick={likeComment}
         >
           {
-            likes.includes(user.uid as string) ? 
+            likes?.includes(user.uid as string) ? 
             (
               <FilledHeartIcon className="w-5 cursor-pointer hover:text-pink-500" />
             ) : (
               <HeartIcon className='w-5 cursor-pointer hover:text-pink-500' />
             )
           }
-          {likes.length > 0 && <span className="-mr-[16.5px] -translate-y-0.5 -mb-1">{likes.length}</span>}
+          {likes?.length > 0 && <span className="-mr-[16.5px] -translate-y-0.5 -mb-1">{likes.length}</span>}
         </div>
+        {user?.uid === data?.uid && 
+          (<div 
+            className="cursor-pointer hover:text-red-600"
+            onClick={deleteTweet}
+          >
+            <TrashIcon className="w-5" />
+          </div>)
+        }
         <ChartBarIcon className='w-5 cursor-not-allowed' />
         <ArrowUpTrayIcon className='w-5 cursor-not-allowed' />
       </div>
