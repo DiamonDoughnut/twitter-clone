@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef, ChangeEvent } from "react";
 import Image from "next/image";
 import {
   CalendarIcon,
@@ -7,10 +7,12 @@ import {
   FaceSmileIcon,
   MapPinIcon,
   PhotoIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
-import { db } from "../../../../firebase";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { db, storage } from "../../../../firebase";
+import { addDoc, collection, doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { useAppSelector } from "@/app/hooks/reduxTSAdapter";
+import { getDownloadURL, ref, uploadString } from "firebase/storage";
 
 export type TweetType = {
   userName: string,
@@ -25,9 +27,11 @@ export type TweetType = {
 const TweetInput = () => {
   const user = useAppSelector((state) => state.user);
   const [text, setText] = useState("");
+  const [image, setImage] = useState<string | null | undefined>(null);
+
+  const filePickerRef = useRef(null)
 
   async function sendTweet() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const docRef = await addDoc(collection(db, "posts"), {
       userName: user.userName,
       name: user.name,
@@ -37,8 +41,30 @@ const TweetInput = () => {
       likes: [],
       tweet: text,
     });
+    
+    if (image) {
+      const imageRef = ref(storage, `/tweet-images/${docRef.id}`);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const uploadImage = await uploadString(imageRef, image, 'data_url')
+      const downloadUrl = await getDownloadURL(imageRef)
+      await updateDoc(doc(db, 'posts', docRef.id),  {
+        image: downloadUrl
+      })
+    }
 
     setText("");
+    setImage(null);
+  }
+
+  function addImageToTweet(e: ChangeEvent<HTMLInputElement>) {
+    const reader = new FileReader();
+    if (e.target.files?.[0]) {
+      reader.readAsDataURL(e.target.files[0])
+    }
+
+    reader.addEventListener('load', e => {
+      setImage(e.target?.result as string | undefined | null)
+    })
   }
 
   return (
@@ -59,11 +85,25 @@ const TweetInput = () => {
           className='bg-transparent resize-none outline-none w-full min-h-[50px] text-lg'
           placeholder="What's on your mind?"
         />
+
+        {
+          image && (
+            <div className="mb-4 relative">
+              <div className="absolute top-1 left-1 bg-[#272C26] rounded-full w-8 h-8 flex justify-center items-center cursor-pointer hover:bg-white/10" onClick={() => setImage(null)}>
+                <XMarkIcon className="h-5" />
+              </div>
+              <Image src={'/assets/kylie.png'} alt="" height={250} width={250} className="rounded-2xl max-h-80 object-contain" />
+            </div>
+          )
+        }
+
+
         <div className='flex justify-between border-t border-gray-700 pt-4'>
           <div className='div flex space-x-0'>
-            <div className='iconsHover'>
+            <div onClick={() => filePickerRef!.current!.click()} className='iconsHover'>
               <PhotoIcon className='h-[22px] text-[#1D9BF0]' />
             </div>
+            <input onChange={addImageToTweet} ref={filePickerRef} className='hidden' type='file' />
             <div className='iconsHover'>
               <ChartBarIcon className='h-[22px] text-[#1D9BF0]' />
             </div>
@@ -78,7 +118,7 @@ const TweetInput = () => {
             </div>
           </div>
           <button
-            disabled={text.trim() === "" || !text}
+            disabled={(text.trim() === "" || !text) && !image}
             onClick={() => sendTweet()}
             className='bg-[#1D9BF0] rounded-full px-4 py-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
           >
