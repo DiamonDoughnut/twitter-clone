@@ -31,7 +31,7 @@ const SignUpModal = () => {
       password
     );
 
-    await updateProfile(auth.currentUser, {
+    await updateProfile(auth.currentUser!, {
       displayName: name,
       photoURL: `/assets/profilePictures/pfp${Math.ceil(Math.random() * 6)}.png`
     });
