@@ -50,6 +50,7 @@ const Sidebar = () => {
           <SidebarLink
             text='Home'
             Icon={HomeIcon}
+            linkEnabled
           />
           <SidebarLink
             text='Explore'
